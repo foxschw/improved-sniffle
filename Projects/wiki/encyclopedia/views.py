@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import markdown2
 import os
@@ -34,3 +34,38 @@ def entry(request, title):
         return render(request, "encyclopedia/error.html", {
             "error": "Page Not Found"
         }, status=404)
+    
+def search(request):
+
+    # Retrieve the query from the search form
+    query = request.GET.get('q', '')
+    
+    # Create a list of all possible entries
+    entries = util.list_entries()
+    
+    # Iterate over the list and create a variable for the exact match
+    exact_match = [entry for entry in entries if entry.lower() == query.lower()]
+    
+    # Find any partial matches
+    partial_matches = [entry for entry in entries if query.lower() in entry.lower()]
+
+    if exact_match:
+        # Redirect straight to the 'entry' view. 
+        # Index into 0th item because we used a list comprehension to find any exact matches
+        return redirect('entry', title=exact_match[0])
+    
+    elif partial_matches:
+        # Render the search page passing in the partial matches and intial search query
+        return render(request, "encyclopedia/search.html", {
+            "entries": partial_matches,
+            "search_query": query
+        })
+    
+    else:
+        # Render the search page passing in the initial search query and an empty list
+        # The logic for deal with populated or empty lists is handled in search.html
+        return render(request, "encyclopedia/search.html", {
+            "entries": [],
+            "search_query": query
+        })
+
