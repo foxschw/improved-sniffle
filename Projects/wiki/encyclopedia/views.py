@@ -63,9 +63,58 @@ def search(request):
     
     else:
         # Render the search page passing in the initial search query and an empty list
-        # The logic for deal with populated or empty lists is handled in search.html
+        # The logic for dealing with populated or empty lists is handled in search.html
         return render(request, "encyclopedia/search.html", {
             "entries": [],
             "search_query": query
         })
+    
+def new(request):
+    
+    # If the form was submitted:
+    if request.method == 'POST':
+
+        # Retrieve title from form submission
+        new_title = request.POST.get('new_entry_title', '')
+
+        # Server-side check if title is included
+        if not new_title:
+            return render(request, "encyclopedia/error.html", {
+                "error": "Entries Must Include A Title."
+            }, status=400)
+
+
+        # Initiate check to see if an article with the same title already exists.
+        # Create a list of all existing titles
+        titles = util.list_entries()
+    
+        # Iterate over the list and create a variable for the exact match
+        exact_match = [title for title in titles if title.lower() == new_title.lower()]
+        
+        # If a match exists, render an error page
+        if exact_match:
+            return render(request, "encyclopedia/error.html", {
+            "error": "This Page Already Exists."
+            }, status=409)
+        
+        else:
+            # If the title is unique, fetch the text content
+            new_text = request.POST.get('new_entry_text', '')
+
+            # Server-side check if text is included
+            if not new_text:
+                return render(request, "encyclopedia/error.html", {
+                    "error": "Entries Must Include Text."
+                }, status=400)
+
+            # Concatenate the title with the text to conform to pre-existing entries
+            full_entry = "# " + new_title + "\n\n" + new_text
+
+            # Save the entry and redirect to that page.
+            util.save_entry(new_title, full_entry)
+            return redirect('entry', title=new_title)
+        
+    # If page was accessed from sidebar or direct URL entry, display the form
+    else:
+        return render(request, "encyclopedia/new.html")
 
