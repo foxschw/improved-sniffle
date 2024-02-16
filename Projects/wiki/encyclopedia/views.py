@@ -118,3 +118,32 @@ def new(request):
     else:
         return render(request, "encyclopedia/new.html")
 
+def edit(request, title):
+    
+    # If page is reached through hyperlink
+    if request.method == 'GET':
+    
+        # Store contents of entry in a variable
+        entry_content = util.get_entry(title)
+
+        # Render the edit page passing in the title and text
+        return render(request, "encyclopedia/edit.html",{
+            'title': title,
+            'editable_text': entry_content
+        })
+    
+    else:
+        # If edit is submitted, store the new text in a variable
+        new_text = request.POST.get('edited_text', '')
+
+        # Server-side check if text is included
+        if not new_text:
+            return render(request, "encyclopedia/error.html", {
+                "error": "Entries Must Include Text."
+            }, status=400)
+        
+        # Save new text to the entry and render the entry's page
+        else:
+            util.save_entry(title, new_text)
+            return redirect('entry', title=title)
+        

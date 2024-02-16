@@ -36,3 +36,14 @@ textarea {
 .sidebar h2 {
     margin-top: 5px;
 }
+
+.custom-button {
+    text-decoration: none;
+    border: 1px solid darkgrey;
+    background-color: bisque;
+    padding: 5px;
+}
+
+/* #editButton.button:hover {
+    background-color: darkgoldenrod;
+} */
