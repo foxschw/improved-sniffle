@@ -13,9 +13,10 @@
             {% csrf_token %}
             <label for="edited_text">Edit text:</label>
             <br>
-            <textarea id="edited_text" name="edited_text" required>{{ editable_text }}</textarea>
+            <textarea class="entry_textarea" name="edited_text" required>{{ editable_text }}</textarea>
             <br>
             <input type="submit" value="Submit">
+            <a class="link_button" href="{% url 'entry' title=title %}">Cancel</a>
           </form>
     </div>
 

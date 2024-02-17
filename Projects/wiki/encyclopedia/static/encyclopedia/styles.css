@@ -36,3 +36,23 @@ textarea {
 .sidebar h2 {
     margin-top: 5px;
 }
+
+.link_button {
+    border: 1px solid lightslategray;
+    padding: 4px 8px;
+    text-decoration: none;
+    background-color: buttonface;
+    color: #423e3e;
+    cursor: pointer;
+}
+
+.link_button:hover {
+    background-color: #dddddd;
+    text-decoration: none;
+    color: #423e3e;
+}
+
+.entry_textarea {
+    height: 15em;
+    width: 40em;
+}

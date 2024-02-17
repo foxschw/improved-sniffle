@@ -11,6 +11,7 @@ def index(request):
         "entries": util.list_entries()
     })
 
+
 def entry(request, title):
     # Create a dynamic variable for the file path
     file_path = os.path.join("entries", f"{title}.md")
@@ -26,7 +27,7 @@ def entry(request, title):
 
         # Pass the HTML and title into the entry.html file
         return render(request, "encyclopedia/entry.html", {
-            "entry_content": html_entry, 
+            "entry_content": html_entry,
             "title": title
         })
 
@@ -35,7 +36,8 @@ def entry(request, title):
         return render(request, "encyclopedia/error.html", {
             "error": "Page Not Found"
         }, status=404)
-    
+
+
 def search(request):
 
     # Retrieve the query from the search form
@@ -51,7 +53,7 @@ def search(request):
     partial_matches = [entry for entry in entries if query.lower() in entry.lower()]
 
     if exact_match:
-        # Redirect straight to the 'entry' view. 
+        # Redirect straight to the 'entry' view.
         # Index into 0th item because we used a list comprehension to find any exact matches
         return redirect("entry", title=exact_match[0])
     
@@ -69,7 +71,8 @@ def search(request):
             "entries": [],
             "search_query": query
         })
-    
+
+
 def new(request):
     
     # If the form was submitted:
@@ -100,8 +103,8 @@ def new(request):
         # If a match exists, render an error page
         if exact_match:
             return render(request, "encyclopedia/error.html", {
-            "error": "This Page Already Exists."
-            }, status=409)
+                "error": "This Page Already Exists."
+                }, status=409)
         
         else:
             # If the title is unique, fetch the text content
@@ -124,6 +127,7 @@ def new(request):
     else:
         return render(request, "encyclopedia/new.html")
 
+
 def edit(request, title):
     
     # If page is reached through hyperlink
@@ -133,7 +137,7 @@ def edit(request, title):
         entry_content = util.get_entry(title)
 
         # Render the edit page passing in the title and text
-        return render(request, "encyclopedia/edit.html",{
+        return render(request, "encyclopedia/edit.html", {
             "title": title,
             "editable_text": entry_content
         })
@@ -152,9 +156,9 @@ def edit(request, title):
         else:
             util.save_entry(title, new_text)
             return redirect("entry", title=title)
-        
+
+
 def random_page(request):
         
-        # Redirect to "entry" view using random.choice to chose an article from the list.
-        return redirect("entry", title=random.choice(util.list_entries()))
-
+    # Redirect to "entry" view using random.choice to chose an article from the list.
+    return redirect("entry", title=random.choice(util.list_entries()))
