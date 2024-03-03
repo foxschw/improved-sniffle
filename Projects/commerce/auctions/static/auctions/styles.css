@@ -44,11 +44,18 @@ body {
     display: flex;
     flex-direction: column;
     width: auto;
+    padding-left: 10px;
 }
 
 .listing-detail-img {
     max-height: 500px;
     width: auto;
     border-style: groove;
+}
+
+.action-items {
+    display: inline-block;
+    margin-right: 10px;
+    margin-top: 10px;
 }
 

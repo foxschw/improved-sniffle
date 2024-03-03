@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from . import util
+
 
 class User(AbstractUser):
     pass
@@ -16,7 +18,13 @@ class Categories(models.Model):
 class Listings(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
     item = models.CharField(max_length=64)
-    price = models.DecimalField(decimal_places=2, max_digits=8)
+    list_price = models.DecimalField(decimal_places=2, max_digits=8)
+    highest_bid = models.DecimalField(
+        decimal_places=2, 
+        max_digits=8, 
+        null=True,
+        blank=True
+    )
     description = models.CharField(max_length=500)
     image = models.URLField(max_length=500)
     category = models.ForeignKey(
@@ -28,6 +36,15 @@ class Listings(models.Model):
     )
     created = models.DateTimeField()
     is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.item}"
+    
+    # Define a function to calculate the highest bid
+    def update_highest_bid(self, bid_amt):
+        if not self.highest_bid or bid_amt > self.highest_bid:
+            self.highest_bid = bid_amt
+            self.save()
 
 
 class Bids(models.Model):

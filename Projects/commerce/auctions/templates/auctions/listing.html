@@ -6,8 +6,41 @@
     <img class="listing-detail-img" src="{{ listing.image }}" alt="{{ listing.item }}">
     <br>
     <p>{{ listing.description }}</p>
-    <br>
-    <h3>Current Price: ${{ listing.price }}</h3>
+    <h3>Current Price: ${{ listing.highest_bid|default:listing.list_price }}</h3>
+    {% if user.is_authenticated %}
+        {% if listing.is_active %}
+            <div>
+                <form action="{% url 'listing_page' listing.id %}" method="post">
+                    {% csrf_token %}  
+                    {{ form }} 
+                    <input class="btn btn-primary" type="submit" value="Place Bid">
+                </form>
+            </div>
+            <div>
+                <span class="action-items">
+                    <form action="" method="get">
+                        {% if on_watchlist %}
+                            <button type="submit" name="watchlist_action" value="remove">Remove from Watchlist</button>
+                        {% else %}
+                            <button type="submit" name="watchlist_action" value="add">Add to Watchlist</button>
+                        {% endif %}
+                    </form>
+                </span>
+                {% if user == listing.user %}
+                    <span class="action-items">
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <button type="submit" name="close_auction" value="true" class="btn btn-danger">Close Auction</button>
+                        </form>
+                    </span>
+                {% endif %}
+            </div> 
+        {% elif is_winner %}
+            <h1 style="color:green;">YOU WON</h1>
+        {% else %}
+            <p>This auction has closed.</p>
+        {% endif %}
+    {% endif %}
     <div>
         <h4>Details</h4>
         <ul>
