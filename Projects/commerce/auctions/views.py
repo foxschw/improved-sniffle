@@ -7,12 +7,14 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .models import Categories
-from .models import User
+from .models import User, Listings
 from .forms import CreateListingForm
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html",{
+        "listings": Listings.objects.all()
+    })
 
 
 def login_view(request):
@@ -88,4 +90,18 @@ def create_listing(request):
                 "errors": form.errors # Include form errors
             })
     else:
-        return render(request, "auctions/create_listing.html", {"form": CreateListingForm})
+        return render(request, "auctions/create_listing.html", {
+            "form": CreateListingForm
+        })
+    
+
+def listing_page(request, id):
+    try:
+        listing = Listings.objects.get(id=id)
+    except Listings.DoesNotExist:
+        return render(request, "auctions/error.html", {
+                "message": "Listing Does Not Exist.",
+            })
+    return render(request, "auctions/listing.html", {
+        "listing": listing
+    })

@@ -11,6 +11,7 @@ body {
     flex-direction: column;
     justify-content: left;
     width: 50%;
+    flex-grow: 1;
 }
 
 .form-label {
@@ -18,4 +19,36 @@ body {
     flex-grow: 1;
 }
 
+.listing-box {
+    display: flex;
+    flex-direction: row;
+    border-style: ridge;
+    border-color: slategray;
+    padding: 10px;
+    margin: 10px;
+    height: 300px;
+}
+
+.listing-photo {
+    width: 300px;
+    height: auto;
+}
+
+.listing-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.listing-info {
+    display: flex;
+    flex-direction: column;
+    width: auto;
+}
+
+.listing-detail-img {
+    max-height: 500px;
+    width: auto;
+    border-style: groove;
+}
 

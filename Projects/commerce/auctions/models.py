@@ -5,6 +5,7 @@ from django.db import models
 class User(AbstractUser):
     pass
 
+
 class Categories(models.Model):
     name = models.CharField(max_length=64, blank=True, null=True)
 
@@ -35,6 +36,7 @@ class Bids(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
     listing = models.ForeignKey(Listings, on_delete=models.CASCADE, related_name="bids")
 
+
 class Comments(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     comment = models.CharField(max_length=500)
@@ -45,3 +47,7 @@ class Comments(models.Model):
         related_name="comments"
     )
 
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist")
+    item = models.ForeignKey(Listings, on_delete=models.CASCADE, related_name="watchlist")
