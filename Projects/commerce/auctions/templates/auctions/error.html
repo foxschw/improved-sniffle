@@ -1,0 +1,21 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2 style="margin-bottom: 10px;">ERROR.</h2>
+    <br>
+    <div>
+        {{ message }}
+    </div>
+    {% if errors %}
+    <div class="errors">
+        <p>Please correct the following errors:</p>
+        <ul>
+            {% for field, error_list in errors.items %}
+                {% for error in error_list %}
+                    <li><strong>{{ field }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+{% endblock %}

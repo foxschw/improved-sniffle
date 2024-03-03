@@ -1,0 +1,21 @@
+body {
+    padding: 10px;
+}
+
+.form-input {
+    width: 50%;
+}
+
+.form-label-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    width: 50%;
+}
+
+.form-label {
+    width: auto;
+    flex-grow: 1;
+}
+
+
