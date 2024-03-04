@@ -25,3 +25,14 @@ class BidSubmit(forms.ModelForm):
     class Meta:
         model = Bids
         fields = ["bid_amt", ]
+
+
+class CommentSubmit(forms.ModelForm):
+    comment = forms.CharField(
+        label="Add a Comment", 
+        widget=forms.Textarea, 
+        max_length=500)
+    
+    class Meta:
+        model = Bids
+        fields = ["comment", ]

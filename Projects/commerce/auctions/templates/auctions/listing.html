@@ -13,12 +13,13 @@
                 <form action="{% url 'listing_page' listing.id %}" method="post">
                     {% csrf_token %}  
                     {{ form }} 
-                    <input class="btn btn-primary" type="submit" value="Place Bid">
+                    <input class="btn btn-primary" type="submit" name="place_bid" value="Place Bid">
                 </form>
             </div>
             <div>
                 <span class="action-items">
-                    <form action="" method="get">
+                    <form action="" method="post">
+                        {% csrf_token %}
                         {% if on_watchlist %}
                             <button type="submit" name="watchlist_action" value="remove">Remove from Watchlist</button>
                         {% else %}
@@ -47,5 +48,19 @@
             <li>Listed by {{ listing.user }}</li>
             <li>Category: {{ listing.category }}</li>
         </ul>
+    </div>
+    <div>
+        <h4>Comments</h4>
+        {% for comment in comments %}
+            <div style="padding: 10px;">
+                <div> On {{ comment.comment_time }} {{ comment.user }} said: </div>
+                <div class="comment-box"> {{ comment.comment }}</div>
+            </div>
+        {% endfor %}
+        <form action="{% url 'listing_page' listing.id %}" method="post">
+            {% csrf_token %}  
+            {{ comment_submit }} 
+            <input class="btn btn-primary" type="submit" name="submit_comment" value="Submit">
+        </form>
     </div>
 {% endblock %}

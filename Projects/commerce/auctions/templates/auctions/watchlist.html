@@ -1,0 +1,26 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>My Watchlist</h2>
+    {% if watchlist %}
+        {% for watchlist_item in watchlist %}
+            <div class="listing-box">
+                <div class="listing-photo">
+                    <a href="{% url 'listing_page' id=watchlist_item.item.id %}">
+                        <img src="{{ watchlist_item.item.image }}" alt="{{ watchlist_item.item.item }}">
+                    </a>
+                </div>
+                <div class="listing-info">
+                    <h3>{{ watchlist_item.item.item }}</h3>
+                    <p>{{ watchlist_item.item.description }}</p>
+                    <ul>
+                        <li>Price: ${{ watchlist_item.item.highest_bid|default:watchlist_item.item.list_price }}</li>
+                        <li>Listed: {{ watchlist_item.item.created }}</li>
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+    <h6>No items in your Watchlist</h6>
+    {% endif %}
+{% endblock %}

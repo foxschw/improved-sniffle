@@ -59,3 +59,11 @@ body {
     margin-top: 10px;
 }
 
+.comment-box {
+    border: solid 2px darkblue;
+    background-color: lightgray;
+    padding: 15px;
+    max-width: 300px;
+    height: auto;
+}
+
