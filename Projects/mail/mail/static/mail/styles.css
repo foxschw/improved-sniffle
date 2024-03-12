@@ -1,3 +1,22 @@
 textarea {
     min-height: 400px;
 }
+
+.sent-mailbox {
+    border: 1px darkslategray solid;
+    padding: 5px;
+    background-color: white;
+}
+
+#email-read {
+    background-color: lightgray;
+}
+
+.user-class {
+    font-weight: bold;
+}
+
+.time-stamp-class {
+    float: right;
+    color: darkslategray;
+}

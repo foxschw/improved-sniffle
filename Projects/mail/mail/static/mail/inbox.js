@@ -45,9 +45,12 @@ function submit_email(composition) {
   .then(result => {
     // Print result
     console.log(result);
+  })
+  .then(() => {
+    // Send user to Sent mailbox, reloading first to include most recent email.
+    location.reload();
+    load_mailbox('sent');
   });
-  // Send user to Sent mailbox
-  load_mailbox('sent');
 }
 
 
@@ -60,20 +63,44 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-  if (mailbox === 'sent') {
-    fetch('/emails/sent')
-    .then(response => response.json())
-    .then(emails => {
-      // Print email
-      console.log(emails);
+  // Request email from mailbox that has been passed in.
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => {
+    // Print email
+    console.log(emails);
 
-      emails.forEach((email) => {
-        const element = document.createElement('div');
-        element.innerHTML = email.body;
-        document.querySelector('#emails-view').append(element);
-      })
+    // Iterate over each email in the mailbox
+    emails.forEach((email) => {
+      const element = document.createElement('div');
+      element.classList.add('sent-mailbox');
+      // Apply specific style if email is marked "read"
+      if (email.read === true) {
+        element.id = 'email-read'
+      };
+      document.querySelector('#emails-view').append(element);
+      
+      // Create variable for user
+      const user = document.createElement('span');
+      user.classList.add('user-class');
+      // If viewing the Sent mailbox, show recipient, not sender.
+      if (mailbox === 'sent') {
+        user.innerHTML = `${email.recipients} - `;
+      } else {
+        user.innerHTML = `${email.sender} - `;
+      }
 
-    });
-  }
+      // Create variable for subject.
+      const text = document.createElement('span');
+      text.innerHTML = email.subject;
 
+      // Create variable for time-stamp
+      const time = document.createElement('span');
+      time.classList.add('time-stamp-class');
+      time.innerHTML = email.timestamp;
+
+      // Add these variables to the div.
+      element.append(user, text, time);
+    })
+  });
 }
