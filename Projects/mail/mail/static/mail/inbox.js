@@ -18,6 +18,7 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#read-email').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -59,6 +60,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#read-email').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -82,7 +84,7 @@ function load_mailbox(mailbox) {
       
       // Create variable for user
       const user = document.createElement('span');
-      user.classList.add('user-class');
+      user.classList.add('bold-class');
       // If viewing the Sent mailbox, show recipient, not sender.
       if (mailbox === 'sent') {
         user.innerHTML = `${email.recipients} - `;
@@ -101,6 +103,44 @@ function load_mailbox(mailbox) {
 
       // Add these variables to the div.
       element.append(user, text, time);
+
+      element.addEventListener('click', () => {
+        read_email(email.id);
+      });
+
     })
   });
+}
+
+function read_email(email_id) {
+  
+  // Show the mailbox and hide other views
+  // location.reload();
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#read-email').style.display = 'block';
+
+  fetch(`/emails/${email_id}`)
+  .then(response => response.json())
+  .then(email => {
+      // Print email
+      console.log(email);
+      // If we're seeing this email, mark it as read.
+      email.read = true;
+
+      const element = document.createElement('div');
+      document.querySelector('#read-email').append(element);
+
+      const from = document.createElement('span');
+      from.classList.add('bold-class');
+      from.innerHTML = 'From: '
+
+      const sender = document.createElement('span');
+      sender.innerHTML = email.sender;
+
+      element.append(from, sender);
+
+  });
+
+
 }
