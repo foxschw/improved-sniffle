@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-function compose_email() {
+function compose_email(email_id) {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -25,6 +25,27 @@ function compose_email() {
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
 
+  // If an email ID has been passed in, this format as a reply.
+  // Fetch email data from ID passed in.
+  if (!email_id) {
+    fetch(`/emails/${email_id}`)
+    .then(response => response.json())
+    .then(email => {
+    // Populate recipient
+      document.querySelector('#compose-recipients').value = email.sender;
+      // Add Re: if it isn't there already
+      let email_subject = email.subject;
+      if (!email_subject.startsWith("Re: ")) {
+        email_subject = "Re: " + email_subject;
+      }
+      document.querySelector('#compose-subject').value = email_subject;
+      // Prepopulate body
+      document.querySelector('#compose-body').value = "\n---\n" +
+        `On ${email.timestamp} ${email.sender} wrote:` + "\n" +
+        email.body;
+    });
+  }
+
 }
 
 function submit_email(composition) {
@@ -32,14 +53,17 @@ function submit_email(composition) {
   composition.preventDefault();
   // Load data from form into variable
   const formData = new FormData(composition.target);
+  // Convert all paragraph breaks to HTML so they load when viewed later.
+  let email_body = formData.get('body');
+  email_body = email_body.replace(/\n/g, "<br>");
   // Post email to /emails route
   fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
-      // Pull fields from form submission
+      // Pull fields from form submission, use the new email_body variable.
       recipients: formData.get('recipients'),
       subject: formData.get('subject'),
-      body: formData.get('body')
+      body: email_body
     })
   })
   .then(response => response.json())
@@ -48,8 +72,8 @@ function submit_email(composition) {
     console.log(result);
   })
   .then(() => {
-    // Send user to Sent mailbox, reloading first to include most recent email.
-    location.reload();
+    // clear out current view and reload sent to include most recent.
+    document.querySelector('#emails-view').innerHTML = '';
     load_mailbox('sent');
   });
 }
@@ -178,6 +202,11 @@ function read_email(email_id) {
       reply_btn.classList.add('btn-outline-primary');
       reply_btn.id = 'reply';
       reply_btn.innerHTML = 'Reply';
+      // Send to compose view, passing in the id of the email being viewed.
+      reply_btn.addEventListener('click', () => {
+        compose_email(email.id);
+      });
+
 
       const archive_btn = document.createElement('button');
       // Only add archive button for received emails, hide if not.
@@ -220,7 +249,7 @@ function archive_toggle(current_state, email_id) {
   })
   .then(() => {
     // Send user to inbox, reloading first to include recent changes.
+    // Inbox will load by default on refresh
     location.reload();
-    // load_mailbox('inbox');
   });
 }
