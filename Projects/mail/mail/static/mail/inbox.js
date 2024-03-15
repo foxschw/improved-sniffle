@@ -115,32 +115,112 @@ function load_mailbox(mailbox) {
 function read_email(email_id) {
   
   // Show the mailbox and hide other views
-  // location.reload();
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#read-email').style.display = 'block';
 
+  // Clear out the div of anything there already
+  document.querySelector('#read-email').innerHTML = '';
+
+  // If we're seeing this email, mark it as read.
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true
+    })
+  });
+  
+  // Assemble the email
   fetch(`/emails/${email_id}`)
   .then(response => response.json())
   .then(email => {
       // Print email
       console.log(email);
-      // If we're seeing this email, mark it as read.
-      email.read = true;
-
+      console.log(email.user); //dbug
+      console.log(email.sender); //dbug
+      
+      // Create div container
       const element = document.createElement('div');
       document.querySelector('#read-email').append(element);
 
+      // Create elements for all component parts of the email
       const from = document.createElement('span');
       from.classList.add('bold-class');
-      from.innerHTML = 'From: '
+      from.innerHTML = 'From: ';
 
       const sender = document.createElement('span');
       sender.innerHTML = email.sender;
 
-      element.append(from, sender);
+      const to = document.createElement('span');
+      to.classList.add('bold-class');
+      to.innerHTML = 'To: ';
 
+      const recipient = document.createElement('span');
+      recipient.innerHTML = email.recipients;
+
+      const subject = document.createElement('span');
+      subject.classList.add('bold-class');
+      subject.innerHTML = 'Subject: ';
+
+      const subj = document.createElement('span');
+      subj.innerHTML = email.subject;
+
+      const timestamp = document.createElement('span');
+      timestamp.classList.add('bold-class');
+      timestamp.innerHTML = 'Timestamp: ';
+
+      const time = document.createElement('span');
+      time.innerHTML = email.timestamp;
+
+      const reply_btn = document.createElement('button');
+      reply_btn.classList.add('btn');
+      reply_btn.classList.add('btn-sm');
+      reply_btn.classList.add('btn-outline-primary');
+      reply_btn.id = 'reply';
+      reply_btn.innerHTML = 'Reply';
+
+      const archive_btn = document.createElement('button');
+      // Only add archive button for received emails, hide if not.
+      if (email.user === email.sender) {
+        archive_btn.style.display = 'none'
+      } else {
+        archive_btn.classList.add('btn');
+        archive_btn.classList.add('btn-sm');
+        archive_btn.classList.add('btn-outline-primary');
+        // archive_btn.id = email.archived ? 'unarchive-email' : 'archive-email';
+        archive_btn.innerHTML = email.archived ? 'Unarchive' : 'Archive';
+        // Clicking the button will toggle the state of the archived field
+        // (and return user to inbox)
+        archive_btn.addEventListener('click', () => {
+          archive_toggle(email.archived, email.id);
+        });
+      };
+      
+      const body = document.createElement('span');
+      body.innerHTML = email.body;
+
+      // Combine all the components together
+      element.append(from, sender, document.createElement('br'), 
+        to, recipient, document.createElement('br'), 
+        subject, subj, document.createElement('br'), 
+        timestamp, time, document.createElement('br'),
+        reply_btn, archive_btn, document.createElement('hr'),
+        body);
   });
+}
 
-
+function archive_toggle(current_state, email_id) {
+  // Make PUT request to API 
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      // Flip archive state to whatever is opposite.
+      archived: !current_state
+    })
+  })
+  .then(() => {
+    // Send user to inbox, reloading first to include recent changes.
+    location.reload();
+    // load_mailbox('inbox');
+  });
 }
