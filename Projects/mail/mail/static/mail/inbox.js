@@ -4,8 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
-
+  document.querySelector('#compose').addEventListener('click', () => {
+    // flag that if this button is clicked, email won't be rendered as a reply.
+    let reply = false;
+    compose_email(reply);
+  });
   document.querySelector('#compose-form').addEventListener('submit', submit_email);
 
   // By default, load the inbox
@@ -13,7 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-function compose_email(email_id) {
+
+function compose_email(email_id, reply) {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -25,20 +29,28 @@ function compose_email(email_id) {
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
 
-  // If an email ID has been passed in, this format as a reply.
+  // Check if email is a reply and format if so.
   // Fetch email data from ID passed in.
-  if (!email_id) {
+  if (reply === true) {
     fetch(`/emails/${email_id}`)
     .then(response => response.json())
     .then(email => {
     // Populate recipient
-      document.querySelector('#compose-recipients').value = email.sender;
+      // When replying to an email you've sent, reply to recipients instead of back to yourself
+      if (email.sender === email.user) {
+        document.querySelector('#compose-recipients').value = email.recipients;
+      // Otherwise, reply to sender
+      } else {
+        document.querySelector('#compose-recipients').value = email.sender;
+      }
+
       // Add Re: if it isn't there already
       let email_subject = email.subject;
       if (!email_subject.startsWith("Re: ")) {
         email_subject = "Re: " + email_subject;
       }
       document.querySelector('#compose-subject').value = email_subject;
+      
       // Prepopulate body
       document.querySelector('#compose-body').value = "\n---\n" +
         `On ${email.timestamp} ${email.sender} wrote:` + "\n" +
@@ -47,6 +59,7 @@ function compose_email(email_id) {
   }
 
 }
+
 
 function submit_email(composition) {
   // Prevent normal form submission
@@ -129,14 +142,15 @@ function load_mailbox(mailbox) {
       element.append(user, text, time);
 
       element.addEventListener('click', () => {
-        read_email(email.id);
+        read_email(email.id, mailbox);
       });
 
     })
   });
 }
 
-function read_email(email_id) {
+
+function read_email(email_id, mailbox) {
   
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -204,19 +218,21 @@ function read_email(email_id) {
       reply_btn.innerHTML = 'Reply';
       // Send to compose view, passing in the id of the email being viewed.
       reply_btn.addEventListener('click', () => {
-        compose_email(email.id);
+        // if this button is clicked, compose email should be formatted as reply
+        let reply = true
+        compose_email(email.id, reply);
       });
 
 
       const archive_btn = document.createElement('button');
       // Only add archive button for received emails, hide if not.
-      if (email.user === email.sender) {
+      if (mailbox === 'sent') {
         archive_btn.style.display = 'none'
       } else {
         archive_btn.classList.add('btn');
         archive_btn.classList.add('btn-sm');
         archive_btn.classList.add('btn-outline-primary');
-        // archive_btn.id = email.archived ? 'unarchive-email' : 'archive-email';
+        // Determine what the button should say depending on if archived = true
         archive_btn.innerHTML = email.archived ? 'Unarchive' : 'Archive';
         // Clicking the button will toggle the state of the archived field
         // (and return user to inbox)
@@ -237,6 +253,7 @@ function read_email(email_id) {
         body);
   });
 }
+
 
 function archive_toggle(current_state, email_id) {
   // Make PUT request to API 
